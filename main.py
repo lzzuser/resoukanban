@@ -12,7 +12,7 @@ from zhdate import ZhDate
 
 # 1. 控制推送哪几页？
 # 墨水屏共 5 页：1=热搜上, 2=热搜下, 3=日历, 4=天气
-ENABLED_PAGES = "1,2,3,4"
+ENABLED_PAGES = "4,3,1,2"
 
 # 2. 热搜源设置：目前支持 'zhihu', 'bilibili', 'github'
 HOTLIST_SOURCE = "bilibili"  # 在这里修改你想看的热搜源

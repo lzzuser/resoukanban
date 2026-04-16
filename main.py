@@ -15,18 +15,18 @@ from zhdate import ZhDate
 ENABLED_PAGES = "1,2,3,4"
 
 # 2. 热搜源设置：目前支持 'zhihu', 'bilibili', 'github'
-HOTLIST_SOURCE = "zhihu"  # 在这里修改你想看的热搜源
+HOTLIST_SOURCE = "bilibili"  # 在这里修改你想看的热搜源
 
 # 3. 天气城市设置
-# 高德天气城市代码（默认：天津市津南区 120112，北京是 110000）
-CITY_ADCODE = "120112"                      
+# 高德天气城市代码（默认：天津市津南区 120112，北京是 110000，房山：110111，洛阳410300，西安610100，太仓320585）
+CITY_ADCODE = "320585"                      
 
 # 日出日落位置（支持拼音，如 "Beijing" 或 "Haidian,Beijing"）
-WTTR_LOCATION = "Jinnan,Tianjin"            
+WTTR_LOCATION = "Taicang,Suzhou"            
 
 # 4. 屏幕显示文字
 # 天气页面左上角的自定义标题，你可以改成 "北京市 | 我的温馨小窝" 等等
-CITY_DISPLAY_NAME = "津南区 | 天大北洋园"      
+CITY_DISPLAY_NAME = "太仓智汇港 | 我的工位"      
 
 
 # =====================================================================

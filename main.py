@@ -12,13 +12,13 @@ from zhdate import ZhDate
 
 # 1. 控制推送哪几页？
 # 墨水屏共 5 页：1=热搜上, 2=热搜下, 3=日历, 4=天气
-ENABLED_PAGES = "4,3,1,2"
+ENABLED_PAGES = "4,3"
 
 # 2. 热搜源设置：目前支持 'zhihu', 'bilibili', 'github'
-HOTLIST_SOURCE = "zhihu"  # 在这里修改你想看的热搜源
+HOTLIST_SOURCE = "bilibili"  # 在这里修改你想看的热搜源
 
 # 3. 天气城市设置
-# 高德天气城市代码（默认：天津市津南区 120112，北京是 110000，房山：110111，洛阳410300，西安610100，太仓320585）
+# 高德天气城市代码（默认：天津市津南区 120112，北京是 110000）
 CITY_ADCODE = "320585"                      
 
 # 日出日落位置（支持拼音，如 "Beijing" 或 "Haidian,Beijing"）
@@ -51,6 +51,7 @@ try:
     font_title = ImageFont.truetype(FONT_PATH, 24)
     font_item = ImageFont.truetype(FONT_PATH, 18)
     font_small = ImageFont.truetype(FONT_PATH, 14)
+    font_hotlist = ImageFont.truetype(FONT_PATH, 17)
     font_tiny = ImageFont.truetype(FONT_PATH, 11)
     font_48 = ImageFont.truetype(FONT_PATH, 48)
     font_36 = ImageFont.truetype(FONT_PATH, 36)
@@ -175,7 +176,12 @@ def get_hotlist_data(source):
     return titles[:20]
 
 # --- 任务：热搜看板 ---
+# --- 任务：热搜看板 ---
+# --- 任务：热搜看板 ---
 def task_hotlist():
+    if "1" not in ENABLED_PAGES and "2" not in ENABLED_PAGES:
+        return
+        
     source_map = {"zhihu": "知乎热榜", "bilibili": "B站热搜", "github": "GitHub 热门"}
     titles = get_hotlist_data(HOTLIST_SOURCE)
     title_display = source_map.get(HOTLIST_SOURCE, "热门看板")
@@ -184,36 +190,44 @@ def task_hotlist():
         draw.rounded_rectangle([(10, 10), (390, 45)], radius=8, fill=0)
         draw.text((20, 15), page_title, font=font_title, fill=255)
         y, last_idx = 55, start_idx
-        item_gap = 12
-        line_height = 22
+        item_gap = 10       
+        line_height = 21    # 🔧适配17号字：行高设为 21
+        
         for i in range(start_idx, len(items)):
-            lines = get_wrapped_lines(items[i], 19)
+            lines = get_wrapped_lines(items[i], 20) # 🔧适配17号字：每行容纳字数设为 20
             required_h = len(lines) * line_height
             if y + required_h > 295: break
             current_num = i + 1
-            draw.rounded_rectangle([(10, y), (36, y+24)], radius=6, fill=0)
-            num_x = 18 if current_num < 10 else 11
-            draw.text((num_x, y+2), str(current_num), font=font_small, fill=255)
-            curr_y = y + 2
+            
+            # 🔧适配17号字：左侧序号黑框高度设为 22
+            draw.rounded_rectangle([(10, y), (35, y+22)], radius=5, fill=0)
+            num_x = 16 if current_num < 10 else 10
+            draw.text((num_x, y+3), str(current_num), font=font_small, fill=255)
+            
+            curr_y = y + 1
             for line in lines:
-                draw.text((45, curr_y), line, font=font_item, fill=0)
+                # 使用 17号字体
+                draw.text((43, curr_y), line, font=font_hotlist, fill=0)
                 curr_y += line_height
-            y += max(24, required_h) + item_gap
+            y += max(22, required_h) + item_gap
             last_idx = i + 1
             if y < 290:
-                draw.line([(45, y - item_gap/2), (380, y - item_gap/2)], fill=0, width=1)
+                draw.line([(43, y - item_gap/2), (380, y - item_gap/2)], fill=0, width=1)
         return last_idx
 
+    next_s = 0
     if "1" in ENABLED_PAGES:
+        print("生成 Page 1: 热搜 (上)...")
         img1 = Image.new('1', (400, 300), color=255)
         next_s = draw_list(ImageDraw.Draw(img1), f"◆ {title_display} (一)", titles, 0)
         push_image(img1, 1)
-    else:
-        next_s = 7 
 
     if "2" in ENABLED_PAGES:
+        print("生成 Page 2: 热搜 (下)...")
         img2 = Image.new('1', (400, 300), color=255)
-        draw_list(ImageDraw.Draw(img2), f"◆ {title_display} (二)", titles, next_s)
+        # 如果第一页关闭了，兜底从第 8 条开始
+        start_index = next_s if "1" in ENABLED_PAGES else 8
+        draw_list(ImageDraw.Draw(img2), f"◆ {title_display} (二)", titles, start_index)
         push_image(img2, 2)
 
 # --- 任务：日历（保持不变） ---

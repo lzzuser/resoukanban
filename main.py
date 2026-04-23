@@ -22,7 +22,7 @@ HOTLIST_SOURCE = "bilibili"  # 在这里修改你想看的热搜源
 CITY_ADCODE = "320585"                      
 
 # 日出日落位置（支持拼音，如 "Beijing" 或 "Haidian,Beijing"）
-WTTR_LOCATION = "Taicang,Suzhou"            
+WTTR_LOCATION = "Suzhou"            
 
 # 4. 屏幕显示文字
 # 天气页面左上角的自定义标题，你可以改成 "北京市 | 我的温馨小窝" 等等

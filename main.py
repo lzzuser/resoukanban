@@ -1,3 +1,4 @@
+
 import os
 import requests
 import calendar
@@ -26,7 +27,7 @@ WTTR_LOCATION = "Taicang,Suzhou"
 
 # 4. 屏幕显示文字
 # 天气页面左上角的自定义标题，你可以改成 "北京市 | 我的温馨小窝" 等等
-CITY_DISPLAY_NAME = "太仓智汇港 | 我的工位"      
+CITY_DISPLAY_NAME = "太仓智汇港 | 我的工位"    
 
 
 # =====================================================================
@@ -51,7 +52,6 @@ try:
     font_title = ImageFont.truetype(FONT_PATH, 24)
     font_item = ImageFont.truetype(FONT_PATH, 18)
     font_small = ImageFont.truetype(FONT_PATH, 14)
-    font_hotlist = ImageFont.truetype(FONT_PATH, 17)
     font_tiny = ImageFont.truetype(FONT_PATH, 11)
     font_48 = ImageFont.truetype(FONT_PATH, 48)
     font_36 = ImageFont.truetype(FONT_PATH, 36)
@@ -175,8 +175,7 @@ def get_hotlist_data(source):
         titles = ["数据获取失败，请检查配置"] * 10
     return titles[:20]
 
-# --- 任务：热搜看板 ---
-# --- 任务：热搜看板 ---
+
 # --- 任务：热搜看板 ---
 def task_hotlist():
     if "1" not in ENABLED_PAGES and "2" not in ENABLED_PAGES:
@@ -186,47 +185,77 @@ def task_hotlist():
     titles = get_hotlist_data(HOTLIST_SOURCE)
     title_display = source_map.get(HOTLIST_SOURCE, "热门看板")
 
+    # 🌟 核心优化：按像素真实宽度计算换行，解决中英文混排留白问题
+    def wrap_text_by_pixels(draw, text, font, max_width):
+        lines = []
+        current_line = ""
+        for char in text:
+            test_line = current_line + char
+            # 测量加上这个字符后的真实像素宽度
+            try:
+                w = draw.textlength(test_line, font=font)
+            except AttributeError:
+                w = draw.textbbox((0,0), test_line, font=font)[2]
+                
+            if w <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = char
+        if current_line:
+            lines.append(current_line)
+        return lines
+
     def draw_list(draw, page_title, items, start_idx):
         draw.rounded_rectangle([(10, 10), (390, 45)], radius=8, fill=0)
         draw.text((20, 15), page_title, font=font_title, fill=255)
+        
         y, last_idx = 55, start_idx
-        item_gap = 10       
-        line_height = 21    # 🔧适配17号字：行高设为 21
+        item_gap = 12       # 条目间距
+        line_height = 23    # 18号字的行高
         
         for i in range(start_idx, len(items)):
-            lines = get_wrapped_lines(items[i], 20) # 🔧适配17号字：每行容纳字数设为 20
+            # 屏幕总宽400，文字从X=45开始，右边留白15，所以最大像素宽度是 340
+            lines = wrap_text_by_pixels(draw, items[i], font_item, max_width=340) 
+            
             required_h = len(lines) * line_height
-            if y + required_h > 295: break
+            if y + required_h > 295: 
+                break
+            
             current_num = i + 1
             
-            # 🔧适配17号字：左侧序号黑框高度设为 22
-            draw.rounded_rectangle([(10, y), (35, y+22)], radius=5, fill=0)
-            num_x = 16 if current_num < 10 else 10
+            # 左侧黑底数字序号框 (适配 18 号字)
+            draw.rounded_rectangle([(10, y), (36, y+24)], radius=6, fill=0)
+            num_x = 18 if current_num < 10 else 11
             draw.text((num_x, y+3), str(current_num), font=font_small, fill=255)
             
             curr_y = y + 1
             for line in lines:
-                # 使用 17号字体
-                draw.text((43, curr_y), line, font=font_hotlist, fill=0)
+                draw.text((45, curr_y), line, font=font_item, fill=0)
                 curr_y += line_height
-            y += max(22, required_h) + item_gap
+                
+            y += max(24, required_h) + item_gap
             last_idx = i + 1
+            
+            # 画分割线
             if y < 290:
-                draw.line([(43, y - item_gap/2), (380, y - item_gap/2)], fill=0, width=1)
+                draw.line([(45, y - item_gap/2), (380, y - item_gap/2)], fill=0, width=1)
+                
         return last_idx
 
     next_s = 0
     if "1" in ENABLED_PAGES:
         print("生成 Page 1: 热搜 (上)...")
+        # 🔧修改点 1：将 '1' 改为 'L'
         img1 = Image.new('1', (400, 300), color=255)
         next_s = draw_list(ImageDraw.Draw(img1), f"◆ {title_display} (一)", titles, 0)
         push_image(img1, 1)
 
     if "2" in ENABLED_PAGES:
         print("生成 Page 2: 热搜 (下)...")
+        # 🔧修改点 2：将 '1' 改为 'L'
         img2 = Image.new('1', (400, 300), color=255)
-        # 如果第一页关闭了，兜底从第 8 条开始
-        start_index = next_s if "1" in ENABLED_PAGES else 8
+        start_index = next_s if "1" in ENABLED_PAGES else 7
         draw_list(ImageDraw.Draw(img2), f"◆ {title_display} (二)", titles, start_index)
         push_image(img2, 2)
 
@@ -234,6 +263,7 @@ def task_hotlist():
 def task_calendar():
     if "3" not in ENABLED_PAGES: return
     print("生成 Page 3: 日历...")
+    # 🔧修改点 3：将 '1' 改为 'L'
     img = Image.new('1', (400, 300), color=255)
     draw = ImageDraw.Draw(img)
     now_utc = datetime.utcnow()
@@ -343,10 +373,11 @@ def get_hybrid_weather():
 
     return result
 
-# --- 任务：天气看板（保持不变） ---
+# --- 任务：天气看板 ---
 def task_weather_dashboard():
     if "4" not in ENABLED_PAGES: return
     print("生成 Page 4: 混合天气看板...")
+    # 🔧修改点 4：将 '1' 改为 'L'
     img = Image.new('1', (400, 300), color=255)
     draw = ImageDraw.Draw(img)
 
@@ -373,9 +404,11 @@ def task_weather_dashboard():
     draw.text((150, 45), f"{weather['weather']}", font=font_36, fill=0)
 
     draw.rounded_rectangle([(235, 45), (385, 130)], radius=8, outline=0, fill=0)
-    draw.text((245, 45), f"{weather['wind_info']}", font=font_small, fill=255)
-    draw.text((245, 70), f"湿度 {weather['humidity']}", font=font_small, fill=255)
-    draw.text((245, 95), f"体感 {weather['feel_temp']}", font=font_small, fill=255)
+    
+    # 🔧修改点 5：调整右侧黑框内文字位置使其居中 (X 从 245 移到 255，Y 轴均匀排开)
+    draw.text((255, 56), f"{weather['wind_info']}", font=font_small, fill=255)
+    draw.text((255, 80), f"湿度 {weather['humidity']}", font=font_small, fill=255)
+    draw.text((255, 104), f"体感 {weather['feel_temp']}", font=font_small, fill=255)
 
     draw.text((25, 135), f"日出 {weather['sunrise']}   日落 {weather['sunset']}", font=font_item, fill=0)
 

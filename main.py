@@ -12,7 +12,7 @@ from zhdate import ZhDate
 
 # 1. 控制推送哪几页？
 # 墨水屏共 5 页：1=热搜上, 2=热搜下, 3=日历, 4=天气
-ENABLED_PAGES = "4,3"
+ENABLED_PAGES = "4,3,1,2"
 
 # 2. 热搜源设置：目前支持 'zhihu', 'bilibili', 'github'
 HOTLIST_SOURCE = "bilibili"  # 在这里修改你想看的热搜源
@@ -26,7 +26,7 @@ WTTR_LOCATION = "Suzhou"
 
 # 4. 屏幕显示文字
 # 天气页面左上角的自定义标题，你可以改成 "北京市 | 我的温馨小窝" 等等
-CITY_DISPLAY_NAME = "太仓智汇港 | 我的工位"      
+CITY_DISPLAY_NAME = "太仓智汇港 | C331"      
 
 
 # =====================================================================
